@@ -1,30 +1,76 @@
-# City miner detector
+# سامانه شکارچی برق
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+سیستم هوشمند تشخیص استخراج غیرمجاز ارز دیجیتال
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/imerfanrjb-gmailcoms-projects/v0-city-miner-detector)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/f5d786tc7E5)
+## راه‌اندازی پروژه
 
-## Overview
+### پیش‌نیازها
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- Node.js نسخه 18 یا بالاتر
+- پایگاه داده Neon
+- حساب Gmail برای ارسال ایمیل
 
-## Deployment
+### نصب وابستگی‌ها
 
-Your project is live at:
+\`\`\`bash
+npm install
+\`\`\`
 
-**[https://vercel.com/imerfanrjb-gmailcoms-projects/v0-city-miner-detector](https://vercel.com/imerfanrjb-gmailcoms-projects/v0-city-miner-detector)**
+### تنظیم متغیرهای محیطی
 
-## Build your app
+یک فایل `.env.local` در ریشه پروژه ایجاد کنید و متغیرهای زیر را تنظیم کنید:
 
-Continue building your app on:
+\`\`\`env
+# متغیرهای محیطی Neon
+NEON_NEON_DATABASE_URL=postgres://your-username:your-password@your-host/your-database
 
-**[https://v0.dev/chat/projects/f5d786tc7E5](https://v0.dev/chat/projects/f5d786tc7E5)**
+# متغیرهای محیطی ایمیل
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-email-password
 
-## How It Works
+# کلید رمزنگاری JWT
+JWT_SECRET=your-secret-key
+\`\`\`
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+### مهاجرت پایگاه داده
+
+برای ایجاد جداول مورد نیاز در پایگاه داده، API زیر را فراخوانی کنید:
+
+\`\`\`
+GET /api/migrate
+\`\`\`
+
+### ایجاد داده‌های نمونه
+
+برای ایجاد داده‌های نمونه، API زیر را فراخوانی کنید:
+
+\`\`\`
+GET /api/seed-data
+\`\`\`
+
+### اجرای پروژه در محیط توسعه
+
+\`\`\`bash
+npm run dev
+\`\`\`
+
+### ساخت پروژه برای محیط تولید
+
+\`\`\`bash
+npm run build
+\`\`\`
+
+### اجرای پروژه در محیط تولید
+
+\`\`\`bash
+npm run start
+\`\`\`
+
+## ویژگی‌ها
+
+- احراز هویت کاربران
+- نمایش تشخیص‌های استخراج غیرمجاز ارز دیجیتال
+- نمایش داده‌های سنسور
+- نمایش آمار و تحلیل‌ها
+- مدیریت تشخیص‌ها
+- گزارش‌گیری

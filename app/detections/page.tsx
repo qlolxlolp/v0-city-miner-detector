@@ -1,34 +1,38 @@
 import { Suspense } from "react"
+import { WebSocketProvider } from "@/lib/websocket-provider"
 import { FilterBar } from "@/components/filter-bar"
 import { DetectionTable } from "@/components/detection-table"
-import { ConnectionStatus } from "@/components/connection-status"
-import { WebSocketProvider } from "@/lib/websocket-provider"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Toaster } from "@/components/ui/toaster"
+import { MobileHeader } from "@/components/mobile-header"
+import { UserNav } from "@/components/user-nav"
+import { DateTimeDisplay } from "@/components/date-time-display"
 
 export default function DetectionsPage() {
   return (
     <WebSocketProvider>
-      <main className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
-        <div className="container mx-auto py-6">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">تشخیص‌های ماینر</h1>
-                <p className="text-muted-foreground">مدیریت و جستجوی موارد شناسایی شده</p>
+      <div className="flex min-h-screen flex-col">
+        {/* Mobile Header */}
+        <MobileHeader />
+
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight hidden md:block">تشخیص‌ها</h2>
+            <div className="flex items-center gap-4">
+              <DateTimeDisplay className="hidden md:block" />
+              <div className="hidden md:block">
+                <UserNav />
               </div>
-              <ConnectionStatus />
             </div>
-
-            <FilterBar />
-
-            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-              <DetectionTable />
-            </Suspense>
           </div>
+
+          <Suspense fallback={<div className="h-[100px] rounded-lg bg-muted animate-pulse" />}>
+            <FilterBar />
+          </Suspense>
+
+          <Suspense fallback={<div className="h-[500px] rounded-lg bg-muted animate-pulse" />}>
+            <DetectionTable />
+          </Suspense>
         </div>
-        <Toaster />
-      </main>
+      </div>
     </WebSocketProvider>
   )
 }

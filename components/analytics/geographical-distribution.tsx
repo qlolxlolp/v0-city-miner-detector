@@ -4,17 +4,70 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useTheme } from "next-themes"
 import { useAnalyticsData } from "@/lib/use-analytics-data"
 import { useEffect, useRef } from "react"
-
 export function GeographicalDistribution() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
   const { geographicalData } = useAnalyticsData()
   const mapRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (mapRef.current) {
       // This would be replaced with actual map implementation
       // using libraries like Leaflet or Google Maps
+      // بررسی محیط مرورگر
+      if (typeof window === "undefined") return
+      // بررسی وجود داده
+      if (!geographicalData || geographicalData.length === 0) {
+        const noDataElement = document.createElement("div")
+        noDataElement.style.width = "100%"
+        noDataElement.style.height = "400px"
+        noDataElement.style.display = "flex"
+        noDataElement.style.alignItems = "center"
+        noDataElement.style.justifyContent = "center"
+        noDataElement.style.backgroundColor = isDark ? "#1e293b" : "#e5e7eb"
+        noDataElement.style.borderRadius = "0.5rem"
+        noDataElement.style.color = isDark ? "#94a3b8" : "#4b5563"
+        noDataElement.textContent = "داده‌ای برای نمایش وجود ندارد"
+        // پاک کردن محتوای قبلی
+        while (mapRef.current.firstChild) {
+          mapRef.current.removeChild(mapRef.current.firstChild)
+        }
+        mapRef.current.appendChild(noDataElement)
+        return
+      }
+      // تلاش برای استفاده از کتابخانه نقشه واقعی
+      try {
+        // بررسی وجود Leaflet
+        if (window.L) {
+          // پاک کردن محتوای قبلی
+          while (mapRef.current.firstChild) {
+            mapRef.current.removeChild(mapRef.current.firstChild)
+          }
+          const mapElement = document.createElement("div")
+          mapElement.style.width = "100%"
+          mapElement.style.height = "400px"
+          mapRef.current.appendChild(mapElement)
+          const map = window.L.map(mapElement).setView([32.4279, 53.688], 5)
+          window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }).addTo(map)
+          geographicalData.forEach((city) => {
+            window.L.circleMarker([city.lat, city.lng], {
+              radius: Math.min(Math.sqrt(city.count) * 2, 20),
+              fillColor: getMarkerColor(city.count),
+              color: "#fff",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8,
+            })
+              .addTo(map)
+              .bindPopup(`${city.name}: ${city.count} مورد`)
+          })
+          return
+        }
+      } catch (error) {
+        console.warn("خطا در راه‌اندازی نقشه Leaflet:", error)
+      }
+      // استفاده از نقشه ساختگی اگر Leaflet در دسترس نباشد
       const mockMapElement = document.createElement("div")
       mockMapElement.style.width = "100%"
       mockMapElement.style.height = "400px"
@@ -27,21 +80,17 @@ export function GeographicalDistribution() {
       mockMapElement.style.fontWeight = "bold"
       mockMapElement.style.position = "relative"
       mockMapElement.textContent = "نقشه توزیع جغرافیایی تشخیص‌ها"
-
       // Clear previous content
       while (mapRef.current.firstChild) {
         mapRef.current.removeChild(mapRef.current.firstChild)
       }
-
       mapRef.current.appendChild(mockMapElement)
-
       // Add detection points
       geographicalData.forEach((city) => {
         // Calculate position based on coordinates
         // This is a simplified calculation for demonstration
         const x = ((city.lng - 45) / 15) * 80
         const y = ((38 - city.lat) / 8) * 80
-
         const marker = document.createElement("div")
         marker.style.position = "absolute"
         marker.style.width = "12px"
@@ -54,7 +103,6 @@ export function GeographicalDistribution() {
         marker.style.cursor = "pointer"
         marker.style.boxShadow = "0 0 0 2px rgba(255, 255, 255, 0.5)"
         marker.title = `${city.name}: ${city.count} مورد`
-
         // Add a tooltip on hover
         marker.addEventListener("mouseenter", () => {
           const tooltip = document.createElement("div")
@@ -73,17 +121,14 @@ export function GeographicalDistribution() {
           tooltip.textContent = `${city.name}: ${city.count} مورد`
           marker.appendChild(tooltip)
         })
-
         marker.addEventListener("mouseleave", () => {
           const tooltip = marker.querySelector("div")
           if (tooltip) marker.removeChild(tooltip)
         })
-
         mockMapElement.appendChild(marker)
       })
     }
   }, [geographicalData, isDark])
-
   // Get marker color based on count
   const getMarkerColor = (count: number) => {
     if (count > 100) return "#ef4444" // red
@@ -91,7 +136,6 @@ export function GeographicalDistribution() {
     if (count > 20) return "#facc15" // yellow
     return "#4ade80" // green
   }
-
   return (
     <Card>
       <CardHeader>
